@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Image Click → Allow Location</title>
+  <style>
+    body{
+      font-family: system-ui, sans-serif;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      min-height:100vh;
+      background:#f7f7f7;
+      gap:20px;
+      text-align:center;
+      color:#111;
+    }
+    .img-btn{
+      width:180px;height:180px;
+      border-radius:20px;
+      overflow:hidden;
+      box-shadow:0 5px 15px rgba(0,0,0,0.15);
+      cursor:pointer;
+      touch-action:manipulation;
+    }
+    .img-btn img{
+      width:100%;height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    #status{font-size:15px;max-width:300px}
+  </style>
+</head>
+<body>
+
+  <h2>📍 Location chalu karne ke liye image par tap karein</h2>
+
+  <!-- 👇 Yahan apni image daal sakte ho -->
+  <div class="img-btn" id="locImage">
+    <img src="https://cdn-icons-png.flaticon.com/512/854/854878.png" alt="Enable Location">
+  </div>
+
+  <div id="status">Status: ready</div>
+
+  <script>
+    const img = document.getElementById('locImage');
+    const status = document.getElementById('status');
+
+    function showStatus(msg){
+      status.textContent = 'Status: ' + msg;
+    }
+
+    function success(pos){
+      const lat = pos.coords.latitude.toFixed(6);
+      const lon = pos.coords.longitude.toFixed(6);
+      showStatus(`Location mil gayi ✅\n(${lat}, ${lon})`);
+      window.open(`https://www.google.com/maps?q=${lat},${lon}`, '_blank');
+    }
+
+    function error(err){
+      if(err.code === 1){
+        showStatus('❌ Permission deny kar di — "Allow" dabayein.');
+      }else if(err.code === 2){
+        showStatus('⚠️ Location unavailable — phone ki location setting check karein.');
+      }else{
+        showStatus('Error: ' + err.message);
+      }
+    }
+
+    function requestLocation(){
+      if(!navigator.geolocation){
+        showStatus('Geolocation supported nahi hai.');
+        return;
+      }
+      showStatus('📡 Location permission maangi ja rahi hai...');
+      // Ye line popup trigger karegi (Allow/Block)
+      navigator.geolocation.getCurrentPosition(success, error, {
+        enableHighAccuracy:true,
+        timeout:10000,
+        maximumAge:0
+      });
+    }
+
+    img.addEventListener('click', requestLocation);
+  </script>
+
+</body>
+</html>
